@@ -5,11 +5,18 @@ import type {
 
 type ProjectWorkspaceProps = {
   project: Project;
-  selectedBreadcrumb: Breadcrumb | null;
+
+  selectedBreadcrumb:
+    | Breadcrumb
+    | null;
+
   onSelectBreadcrumb: (
     breadcrumb: Breadcrumb,
   ) => void;
+
   onCreateBreadcrumb: () => void;
+
+  onEditProject: () => void;
 };
 
 function ProjectWorkspace({
@@ -17,6 +24,7 @@ function ProjectWorkspace({
   selectedBreadcrumb,
   onSelectBreadcrumb,
   onCreateBreadcrumb,
+  onEditProject,
 }: ProjectWorkspaceProps) {
   const hasBreadcrumbs =
     project.breadcrumbs.length > 0;
@@ -44,12 +52,23 @@ function ProjectWorkspace({
           </div>
         </div>
 
-        <button
-          onClick={onCreateBreadcrumb}
-          className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-black/80"
-        >
-          + New Breadcrumb
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={onEditProject}
+            className="rounded-lg border border-black/10 px-4 py-2 text-sm font-medium transition hover:bg-black/5"
+          >
+            Edit Project
+          </button>
+
+          <button
+            onClick={
+              onCreateBreadcrumb
+            }
+            className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-black/80"
+          >
+            + New Breadcrumb
+          </button>
+        </div>
       </header>
 
       {!hasBreadcrumbs ? (
@@ -67,12 +86,15 @@ function ProjectWorkspace({
           </h3>
 
           <p className="mt-2 max-w-sm text-sm leading-6 text-black/40">
-            Capture the current state of this
-            project to begin its trail.
+            Capture the current state
+            of this project to begin
+            its trail.
           </p>
 
           <button
-            onClick={onCreateBreadcrumb}
+            onClick={
+              onCreateBreadcrumb
+            }
             className="mt-6 rounded-lg border border-black/10 px-4 py-2 text-sm font-medium transition hover:bg-black/5"
           >
             Create first breadcrumb
@@ -81,10 +103,14 @@ function ProjectWorkspace({
       ) : (
         <div className="mt-12">
           {project.breadcrumbs.map(
-            (breadcrumb, index) => {
+            (
+              breadcrumb,
+              index,
+            ) => {
               const isLatest =
                 index ===
-                project.breadcrumbs.length -
+                project.breadcrumbs
+                  .length -
                   1;
 
               const isSelected =
@@ -93,7 +119,9 @@ function ProjectWorkspace({
 
               return (
                 <div
-                  key={breadcrumb.id}
+                  key={
+                    breadcrumb.id
+                  }
                   className="border-l border-black/10 pb-10 pl-6"
                 >
                   <button
@@ -120,15 +148,22 @@ function ProjectWorkspace({
                       #
                       {breadcrumb.id
                         .toString()
-                        .padStart(3, "0")}
+                        .padStart(
+                          3,
+                          "0",
+                        )}
                     </p>
 
                     <h3 className="mt-1 font-medium">
-                      {breadcrumb.title}
+                      {
+                        breadcrumb.title
+                      }
                     </h3>
 
                     <p className="mt-1 text-sm text-black/40">
-                      {breadcrumb.date}
+                      {
+                        breadcrumb.date
+                      }
                     </p>
 
                     {isLatest && (

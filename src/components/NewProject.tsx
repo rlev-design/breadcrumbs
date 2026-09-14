@@ -3,10 +3,15 @@ import {
   type FormEvent,
 } from "react";
 
-import type { NewProjectInput } from "../types";
+import type {
+  NewProjectInput,
+} from "../types";
 
 type NewProjectProps = {
-  onSave: (input: NewProjectInput) => void;
+  onSave: (
+    input: NewProjectInput,
+  ) => void;
+
   onCancel: () => void;
 };
 
@@ -14,9 +19,15 @@ function NewProject({
   onSave,
   onCancel,
 }: NewProjectProps) {
-  const [name, setName] = useState("");
-  const [color, setColor] =
-    useState("#A89BC7");
+  const [
+    name,
+    setName,
+  ] = useState("");
+
+  const [
+    color,
+    setColor,
+  ] = useState("#A89BC7");
 
   function handleSubmit(
     event: FormEvent<HTMLFormElement>,
@@ -43,7 +54,8 @@ function NewProject({
         </h2>
 
         <p className="mt-2 text-sm leading-6 text-black/40">
-          Create a place for a new trail.
+          Create a place for a
+          new trail.
         </p>
       </header>
 
@@ -59,7 +71,9 @@ function NewProject({
           id="project-name"
           value={name}
           onChange={(event) =>
-            setName(event.target.value)
+            setName(
+              event.target.value,
+            )
           }
           required
           placeholder="Project name"
@@ -81,23 +95,24 @@ function NewProject({
             type="color"
             value={color}
             onChange={(event) =>
-              setColor(event.target.value)
+              setColor(
+                event.target.value,
+              )
             }
             className="h-10 w-12 cursor-pointer rounded border border-black/10 bg-white p-1"
           />
 
-          <div className="flex items-center gap-2">
-            <span
-              className="h-3 w-3 rounded-full"
-              style={{
-                backgroundColor: color,
-              }}
-            />
+          <span
+            className="h-3 w-3 rounded-full"
+            style={{
+              backgroundColor:
+                color,
+            }}
+          />
 
-            <span className="text-sm text-black/50">
-              {color}
-            </span>
-          </div>
+          <span className="text-sm text-black/50">
+            {color}
+          </span>
         </div>
       </div>
 

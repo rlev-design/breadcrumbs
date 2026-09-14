@@ -10,7 +10,11 @@ import DetailPanel from "./components/DetailPanel";
 import {
   createBreadcrumb,
   createProject,
+  deleteBreadcrumb,
+  deleteProject,
   getProjects,
+  updateBreadcrumb,
+  updateProject,
 } from "./db";
 
 import type {
@@ -23,27 +27,44 @@ import type {
 type PanelMode =
   | "detail"
   | "newBreadcrumb"
-  | "newProject";
+  | "newProject"
+  | "editBreadcrumb"
+  | "editProject";
 
 function App() {
-  const [projects, setProjects] =
-    useState<Project[]>([]);
+  const [
+    projects,
+    setProjects,
+  ] = useState<Project[]>([]);
 
   const [
     selectedProject,
     setSelectedProject,
-  ] = useState<Project | null>(null);
+  ] =
+    useState<Project | null>(
+      null,
+    );
 
   const [
     selectedBreadcrumb,
     setSelectedBreadcrumb,
-  ] = useState<Breadcrumb | null>(null);
+  ] =
+    useState<Breadcrumb | null>(
+      null,
+    );
 
-  const [panelMode, setPanelMode] =
-    useState<PanelMode>("detail");
+  const [
+    panelMode,
+    setPanelMode,
+  ] =
+    useState<PanelMode>(
+      "detail",
+    );
 
-  const [isLoading, setIsLoading] =
-    useState(true);
+  const [
+    isLoading,
+    setIsLoading,
+  ] = useState(true);
 
   useEffect(() => {
     async function loadInitialData() {
@@ -51,16 +72,22 @@ function App() {
         const storedProjects =
           await getProjects();
 
-        setProjects(storedProjects);
+        setProjects(
+          storedProjects,
+        );
 
         const firstProject =
-          storedProjects[0] ?? null;
+          storedProjects[0] ??
+          null;
 
-        setSelectedProject(firstProject);
+        setSelectedProject(
+          firstProject,
+        );
 
         setSelectedBreadcrumb(
-          firstProject?.breadcrumbs.at(-1) ??
-            null,
+          firstProject?.breadcrumbs.at(
+            -1,
+          ) ?? null,
         );
       } catch (error) {
         console.error(
@@ -78,10 +105,13 @@ function App() {
   function handleSelectProject(
     project: Project,
   ) {
-    setSelectedProject(project);
+    setSelectedProject(
+      project,
+    );
 
     setSelectedBreadcrumb(
-      project.breadcrumbs.at(-1) ?? null,
+      project.breadcrumbs.at(-1) ??
+        null,
     );
 
     setPanelMode("detail");
@@ -90,8 +120,17 @@ function App() {
   function handleSelectBreadcrumb(
     breadcrumb: Breadcrumb,
   ) {
-    setSelectedBreadcrumb(breadcrumb);
+    setSelectedBreadcrumb(
+      breadcrumb,
+    );
+
     setPanelMode("detail");
+  }
+
+  function handleCreateProject() {
+    setPanelMode(
+      "newProject",
+    );
   }
 
   function handleCreateBreadcrumb() {
@@ -99,11 +138,29 @@ function App() {
       return;
     }
 
-    setPanelMode("newBreadcrumb");
+    setPanelMode(
+      "newBreadcrumb",
+    );
   }
 
-  function handleCreateProject() {
-    setPanelMode("newProject");
+  function handleEditProject() {
+    if (!selectedProject) {
+      return;
+    }
+
+    setPanelMode(
+      "editProject",
+    );
+  }
+
+  function handleEditBreadcrumb() {
+    if (!selectedBreadcrumb) {
+      return;
+    }
+
+    setPanelMode(
+      "editBreadcrumb",
+    );
   }
 
   function handleCancelPanel() {
@@ -115,15 +172,25 @@ function App() {
   ) {
     try {
       const project =
-        await createProject(input);
+        await createProject(
+          input,
+        );
 
-      setProjects((currentProjects) => [
-        ...currentProjects,
+      setProjects(
+        (currentProjects) => [
+          ...currentProjects,
+          project,
+        ],
+      );
+
+      setSelectedProject(
         project,
-      ]);
+      );
 
-      setSelectedProject(project);
-      setSelectedBreadcrumb(null);
+      setSelectedBreadcrumb(
+        null,
+      );
+
       setPanelMode("detail");
     } catch (error) {
       console.error(
@@ -147,28 +214,258 @@ function App() {
           input,
         );
 
-      const updatedProject: Project = {
-        ...selectedProject,
-        breadcrumbs: [
-          ...selectedProject.breadcrumbs,
-          breadcrumb,
-        ],
-      };
+      const updatedProject: Project =
+        {
+          ...selectedProject,
 
-      setProjects((currentProjects) =>
-        currentProjects.map((project) =>
-          project.id === updatedProject.id
-            ? updatedProject
-            : project,
-        ),
+          breadcrumbs: [
+            ...selectedProject.breadcrumbs,
+            breadcrumb,
+          ],
+        };
+
+      setProjects(
+        (currentProjects) =>
+          currentProjects.map(
+            (project) =>
+              project.id ===
+              updatedProject.id
+                ? updatedProject
+                : project,
+          ),
       );
 
-      setSelectedProject(updatedProject);
-      setSelectedBreadcrumb(breadcrumb);
+      setSelectedProject(
+        updatedProject,
+      );
+
+      setSelectedBreadcrumb(
+        breadcrumb,
+      );
+
       setPanelMode("detail");
     } catch (error) {
       console.error(
         "Failed to create breadcrumb:",
+        error,
+      );
+    }
+  }
+
+  async function handleUpdateProject(
+    input: NewProjectInput,
+  ) {
+    if (!selectedProject) {
+      return;
+    }
+
+    try {
+      await updateProject(
+        selectedProject.id,
+        input,
+      );
+
+      const updatedProject: Project =
+        {
+          ...selectedProject,
+
+          name:
+            input.name,
+
+          color:
+            input.color,
+        };
+
+      setProjects(
+        (currentProjects) =>
+          currentProjects.map(
+            (project) =>
+              project.id ===
+              updatedProject.id
+                ? updatedProject
+                : project,
+          ),
+      );
+
+      setSelectedProject(
+        updatedProject,
+      );
+
+      setPanelMode("detail");
+    } catch (error) {
+      console.error(
+        "Failed to update project:",
+        error,
+      );
+    }
+  }
+
+  async function handleUpdateBreadcrumb(
+    input: NewBreadcrumbInput,
+  ) {
+    if (
+      !selectedProject ||
+      !selectedBreadcrumb
+    ) {
+      return;
+    }
+
+    try {
+      await updateBreadcrumb(
+        selectedBreadcrumb.id,
+        input,
+      );
+
+      const updatedBreadcrumb: Breadcrumb =
+        {
+          id:
+            selectedBreadcrumb.id,
+
+          ...input,
+        };
+
+      const updatedProject: Project =
+        {
+          ...selectedProject,
+
+          breadcrumbs:
+            selectedProject.breadcrumbs.map(
+              (breadcrumb) =>
+                breadcrumb.id ===
+                updatedBreadcrumb.id
+                  ? updatedBreadcrumb
+                  : breadcrumb,
+            ),
+        };
+
+      setProjects(
+        (currentProjects) =>
+          currentProjects.map(
+            (project) =>
+              project.id ===
+              updatedProject.id
+                ? updatedProject
+                : project,
+          ),
+      );
+
+      setSelectedProject(
+        updatedProject,
+      );
+
+      setSelectedBreadcrumb(
+        updatedBreadcrumb,
+      );
+
+      setPanelMode("detail");
+    } catch (error) {
+      console.error(
+        "Failed to update breadcrumb:",
+        error,
+      );
+    }
+  }
+
+  async function handleDeleteBreadcrumb() {
+    if (
+      !selectedProject ||
+      !selectedBreadcrumb
+    ) {
+      return;
+    }
+
+    try {
+      await deleteBreadcrumb(
+        selectedBreadcrumb.id,
+      );
+
+      const remainingBreadcrumbs =
+        selectedProject.breadcrumbs.filter(
+          (breadcrumb) =>
+            breadcrumb.id !==
+            selectedBreadcrumb.id,
+        );
+
+      const updatedProject: Project =
+        {
+          ...selectedProject,
+
+          breadcrumbs:
+            remainingBreadcrumbs,
+        };
+
+      setProjects(
+        (currentProjects) =>
+          currentProjects.map(
+            (project) =>
+              project.id ===
+              updatedProject.id
+                ? updatedProject
+                : project,
+          ),
+      );
+
+      setSelectedProject(
+        updatedProject,
+      );
+
+      setSelectedBreadcrumb(
+        remainingBreadcrumbs.at(
+          -1,
+        ) ?? null,
+      );
+
+      setPanelMode("detail");
+    } catch (error) {
+      console.error(
+        "Failed to delete breadcrumb:",
+        error,
+      );
+    }
+  }
+
+  async function handleDeleteProject() {
+    if (!selectedProject) {
+      return;
+    }
+
+    try {
+      const projectId =
+        selectedProject.id;
+
+      await deleteProject(
+        projectId,
+      );
+
+      const remainingProjects =
+        projects.filter(
+          (project) =>
+            project.id !==
+            projectId,
+        );
+
+      const nextProject =
+        remainingProjects[0] ??
+        null;
+
+      setProjects(
+        remainingProjects,
+      );
+
+      setSelectedProject(
+        nextProject,
+      );
+
+      setSelectedBreadcrumb(
+        nextProject?.breadcrumbs.at(
+          -1,
+        ) ?? null,
+      );
+
+      setPanelMode("detail");
+    } catch (error) {
+      console.error(
+        "Failed to delete project:",
         error,
       );
     }
@@ -201,7 +498,9 @@ function App() {
 
       {selectedProject ? (
         <ProjectWorkspace
-          project={selectedProject}
+          project={
+            selectedProject
+          }
           selectedBreadcrumb={
             selectedBreadcrumb
           }
@@ -210,6 +509,9 @@ function App() {
           }
           onCreateBreadcrumb={
             handleCreateBreadcrumb
+          }
+          onEditProject={
+            handleEditProject
           }
         />
       ) : (
@@ -220,8 +522,9 @@ function App() {
             </h2>
 
             <p className="mt-2 text-sm leading-6 text-black/40">
-              Create your first project to
-              start leaving breadcrumbs.
+              Create your first
+              project to start
+              leaving breadcrumbs.
             </p>
 
             <button
@@ -237,12 +540,14 @@ function App() {
       )}
 
       <DetailPanel
+        project={
+          selectedProject
+        }
         breadcrumb={
           selectedBreadcrumb
         }
-        panelMode={panelMode}
-        hasSelectedProject={
-          selectedProject !== null
+        panelMode={
+          panelMode
         }
         onSaveBreadcrumb={
           handleSaveBreadcrumb
@@ -250,7 +555,24 @@ function App() {
         onSaveProject={
           handleSaveProject
         }
-        onCancel={handleCancelPanel}
+        onUpdateBreadcrumb={
+          handleUpdateBreadcrumb
+        }
+        onUpdateProject={
+          handleUpdateProject
+        }
+        onEditBreadcrumb={
+          handleEditBreadcrumb
+        }
+        onDeleteBreadcrumb={
+          handleDeleteBreadcrumb
+        }
+        onDeleteProject={
+          handleDeleteProject
+        }
+        onCancel={
+          handleCancelPanel
+        }
       />
     </main>
   );

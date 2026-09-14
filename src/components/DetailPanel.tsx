@@ -1,3 +1,5 @@
+import EditBreadcrumb from "./EditBreadcrumb";
+import EditProject from "./EditProject";
 import NewBreadcrumb from "./NewBreadcrumb";
 import NewProject from "./NewProject";
 
@@ -5,50 +7,139 @@ import type {
   Breadcrumb,
   NewBreadcrumbInput,
   NewProjectInput,
+  Project,
 } from "../types";
 
 type PanelMode =
   | "detail"
   | "newBreadcrumb"
-  | "newProject";
+  | "newProject"
+  | "editBreadcrumb"
+  | "editProject";
 
 type DetailPanelProps = {
-  breadcrumb: Breadcrumb | null;
+  project:
+    | Project
+    | null;
+
+  breadcrumb:
+    | Breadcrumb
+    | null;
+
   panelMode: PanelMode;
-  hasSelectedProject: boolean;
+
   onSaveBreadcrumb: (
     input: NewBreadcrumbInput,
   ) => void;
+
   onSaveProject: (
     input: NewProjectInput,
   ) => void;
+
+  onUpdateBreadcrumb: (
+    input: NewBreadcrumbInput,
+  ) => void;
+
+  onUpdateProject: (
+    input: NewProjectInput,
+  ) => void;
+
+  onEditBreadcrumb: () => void;
+
+  onDeleteBreadcrumb: () => void;
+
+  onDeleteProject: () => void;
+
   onCancel: () => void;
 };
 
 function DetailPanel({
+  project,
   breadcrumb,
   panelMode,
-  hasSelectedProject,
   onSaveBreadcrumb,
   onSaveProject,
+  onUpdateBreadcrumb,
+  onUpdateProject,
+  onEditBreadcrumb,
+  onDeleteBreadcrumb,
+  onDeleteProject,
   onCancel,
 }: DetailPanelProps) {
-  if (panelMode === "newBreadcrumb") {
+  if (
+    panelMode ===
+    "newBreadcrumb"
+  ) {
     return (
       <aside className="w-96 shrink-0 overflow-y-auto border-l border-black/10 p-6">
         <NewBreadcrumb
-          onSave={onSaveBreadcrumb}
+          onSave={
+            onSaveBreadcrumb
+          }
           onCancel={onCancel}
         />
       </aside>
     );
   }
 
-  if (panelMode === "newProject") {
+  if (
+    panelMode ===
+    "newProject"
+  ) {
     return (
       <aside className="w-96 shrink-0 overflow-y-auto border-l border-black/10 p-6">
         <NewProject
-          onSave={onSaveProject}
+          onSave={
+            onSaveProject
+          }
+          onCancel={onCancel}
+        />
+      </aside>
+    );
+  }
+
+  if (
+    panelMode ===
+      "editBreadcrumb" &&
+    breadcrumb
+  ) {
+    return (
+      <aside className="w-96 shrink-0 overflow-y-auto border-l border-black/10 p-6">
+        <EditBreadcrumb
+          key={
+            breadcrumb.id
+          }
+          breadcrumb={
+            breadcrumb
+          }
+          onSave={
+            onUpdateBreadcrumb
+          }
+          onDelete={
+            onDeleteBreadcrumb
+          }
+          onCancel={onCancel}
+        />
+      </aside>
+    );
+  }
+
+  if (
+    panelMode ===
+      "editProject" &&
+    project
+  ) {
+    return (
+      <aside className="w-96 shrink-0 overflow-y-auto border-l border-black/10 p-6">
+        <EditProject
+          key={project.id}
+          project={project}
+          onSave={
+            onUpdateProject
+          }
+          onDelete={
+            onDeleteProject
+          }
           onCancel={onCancel}
         />
       </aside>
@@ -60,13 +151,13 @@ function DetailPanel({
       <aside className="flex w-96 shrink-0 items-center justify-center border-l border-black/10 p-6">
         <div className="max-w-xs text-center">
           <h2 className="font-medium">
-            {hasSelectedProject
+            {project
               ? "No breadcrumb selected"
               : "No project selected"}
           </h2>
 
           <p className="mt-2 text-sm leading-6 text-black/40">
-            {hasSelectedProject
+            {project
               ? "This project doesn't have any breadcrumbs yet."
               : "Create a project to begin."}
           </p>
@@ -78,20 +169,40 @@ function DetailPanel({
   return (
     <aside className="w-96 shrink-0 overflow-y-auto border-l border-black/10 p-6">
       <header className="border-b border-black/10 pb-6">
-        <p className="text-xs font-medium tracking-wider text-black/40">
-          #
-          {breadcrumb.id
-            .toString()
-            .padStart(3, "0")}
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-medium tracking-wider text-black/40">
+              #
+              {breadcrumb.id
+                .toString()
+                .padStart(
+                  3,
+                  "0",
+                )}
+            </p>
 
-        <h2 className="mt-2 text-xl font-semibold tracking-tight">
-          {breadcrumb.title}
-        </h2>
+            <h2 className="mt-2 text-xl font-semibold tracking-tight">
+              {
+                breadcrumb.title
+              }
+            </h2>
 
-        <p className="mt-2 text-sm text-black/40">
-          {breadcrumb.date}
-        </p>
+            <p className="mt-2 text-sm text-black/40">
+              {
+                breadcrumb.date
+              }
+            </p>
+          </div>
+
+          <button
+            onClick={
+              onEditBreadcrumb
+            }
+            className="rounded-lg border border-black/10 px-3 py-2 text-xs font-medium transition hover:bg-black/5"
+          >
+            Edit
+          </button>
+        </div>
       </header>
 
       <section className="mt-6">
@@ -100,7 +211,9 @@ function DetailPanel({
         </p>
 
         <p className="mt-3 text-sm leading-6 text-black/70">
-          {breadcrumb.whatChanged}
+          {
+            breadcrumb.whatChanged
+          }
         </p>
       </section>
 
@@ -113,14 +226,18 @@ function DetailPanel({
           {breadcrumb.decisions.map(
             (decision) => (
               <li
-                key={decision}
+                key={
+                  decision
+                }
                 className="flex gap-2 text-sm leading-6 text-black/70"
               >
                 <span className="text-black/30">
                   •
                 </span>
 
-                <span>{decision}</span>
+                <span>
+                  {decision}
+                </span>
               </li>
             ),
           )}
@@ -134,7 +251,9 @@ function DetailPanel({
 
         <div className="mt-3 rounded-xl bg-black/5 p-4">
           <p className="text-sm leading-6">
-            {breadcrumb.nextStep}
+            {
+              breadcrumb.nextStep
+            }
           </p>
         </div>
       </section>
@@ -145,7 +264,9 @@ function DetailPanel({
         </p>
 
         <blockquote className="mt-3 border-l-2 border-[#A89BC7] pl-4 text-sm italic leading-6 text-black/60">
-          {breadcrumb.noteToFutureMe}
+          {
+            breadcrumb.noteToFutureMe
+          }
         </blockquote>
       </section>
     </aside>

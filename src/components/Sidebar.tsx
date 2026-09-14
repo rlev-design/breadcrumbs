@@ -1,11 +1,18 @@
-import type { Project } from "../types";
+import type {
+  Project,
+} from "../types";
 
 type SidebarProps = {
   projects: Project[];
-  selectedProject: Project | null;
+
+  selectedProject:
+    | Project
+    | null;
+
   onSelectProject: (
     project: Project,
   ) => void;
+
   onCreateProject: () => void;
 };
 
@@ -31,14 +38,16 @@ function Sidebar({
       </header>
 
       <nav className="mt-8 space-y-1">
-        {navigationItems.map((item) => (
-          <button
-            key={item}
-            className="w-full rounded-lg px-3 py-2 text-left text-sm transition hover:bg-black/5"
-          >
-            {item}
-          </button>
-        ))}
+        {navigationItems.map(
+          (item) => (
+            <button
+              key={item}
+              className="w-full rounded-lg px-3 py-2 text-left text-sm transition hover:bg-black/5"
+            >
+              {item}
+            </button>
+          ),
+        )}
       </nav>
 
       <div className="mt-8">
@@ -47,30 +56,34 @@ function Sidebar({
         </p>
 
         <div className="mt-3 space-y-1">
-          {projects.map((project) => (
-            <button
-              key={project.id}
-              onClick={() =>
-                onSelectProject(project)
-              }
-              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition ${
-                selectedProject?.id ===
-                project.id
-                  ? "bg-black/5 font-medium"
-                  : "hover:bg-black/5"
-              }`}
-            >
-              <span
-                className="h-2 w-2 rounded-full"
-                style={{
-                  backgroundColor:
-                    project.color,
-                }}
-              />
+          {projects.map(
+            (project) => (
+              <button
+                key={project.id}
+                onClick={() =>
+                  onSelectProject(
+                    project,
+                  )
+                }
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition ${
+                  selectedProject?.id ===
+                  project.id
+                    ? "bg-black/5 font-medium"
+                    : "hover:bg-black/5"
+                }`}
+              >
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{
+                    backgroundColor:
+                      project.color,
+                  }}
+                />
 
-              {project.name}
-            </button>
-          ))}
+                {project.name}
+              </button>
+            ),
+          )}
         </div>
 
         <button

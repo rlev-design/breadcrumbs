@@ -3,12 +3,15 @@ import {
   type FormEvent,
 } from "react";
 
-import type { NewBreadcrumbInput } from "../types";
+import type {
+  NewBreadcrumbInput,
+} from "../types";
 
 type NewBreadcrumbProps = {
   onSave: (
     input: NewBreadcrumbInput,
   ) => void;
+
   onCancel: () => void;
 };
 
@@ -16,16 +19,25 @@ function NewBreadcrumb({
   onSave,
   onCancel,
 }: NewBreadcrumbProps) {
-  const [title, setTitle] = useState("");
+  const [
+    title,
+    setTitle,
+  ] = useState("");
 
-  const [whatChanged, setWhatChanged] =
-    useState("");
+  const [
+    whatChanged,
+    setWhatChanged,
+  ] = useState("");
 
-  const [decisions, setDecisions] =
-    useState("");
+  const [
+    decisions,
+    setDecisions,
+  ] = useState("");
 
-  const [nextStep, setNextStep] =
-    useState("");
+  const [
+    nextStep,
+    setNextStep,
+  ] = useState("");
 
   const [
     noteToFutureMe,
@@ -37,31 +49,38 @@ function NewBreadcrumb({
   ) {
     event.preventDefault();
 
-    const date = new Date().toLocaleDateString(
-      "en-US",
+    const date =
+      new Date().toLocaleDateString(
+        "en-US",
+        {
+          month: "short",
+          day: "numeric",
+        },
+      );
+
+    const input: NewBreadcrumbInput =
       {
-        month: "short",
-        day: "numeric",
-      },
-    );
+        title:
+          title.trim(),
 
-    const input: NewBreadcrumbInput = {
-      title: title.trim(),
-      date,
-      whatChanged: whatChanged.trim(),
+        date,
 
-      decisions: decisions
-        .split(",")
-        .map((decision) =>
-          decision.trim(),
-        )
-        .filter(Boolean),
+        whatChanged:
+          whatChanged.trim(),
 
-      nextStep: nextStep.trim(),
+        decisions: decisions
+          .split(",")
+          .map((decision) =>
+            decision.trim(),
+          )
+          .filter(Boolean),
 
-      noteToFutureMe:
-        noteToFutureMe.trim(),
-    };
+        nextStep:
+          nextStep.trim(),
+
+        noteToFutureMe:
+          noteToFutureMe.trim(),
+      };
 
     onSave(input);
   }
@@ -78,7 +97,8 @@ function NewBreadcrumb({
         </h2>
 
         <p className="mt-2 text-sm text-black/40">
-          Capture where you are before moving on.
+          Capture where you are
+          before moving on.
         </p>
       </header>
 
@@ -94,7 +114,9 @@ function NewBreadcrumb({
           id="breadcrumb-title"
           value={title}
           onChange={(event) =>
-            setTitle(event.target.value)
+            setTitle(
+              event.target.value,
+            )
           }
           required
           placeholder="What happened?"
@@ -119,7 +141,6 @@ function NewBreadcrumb({
             )
           }
           rows={4}
-          placeholder="What changed since the last breadcrumb?"
           className="mt-2 w-full resize-none rounded-lg border border-black/10 px-3 py-2 text-sm leading-6 outline-none transition focus:border-black/30"
         />
       </div>
@@ -136,16 +157,14 @@ function NewBreadcrumb({
           id="breadcrumb-decisions"
           value={decisions}
           onChange={(event) =>
-            setDecisions(event.target.value)
+            setDecisions(
+              event.target.value,
+            )
           }
           rows={3}
           placeholder="Separate decisions with commas"
           className="mt-2 w-full resize-none rounded-lg border border-black/10 px-3 py-2 text-sm leading-6 outline-none transition focus:border-black/30"
         />
-
-        <p className="mt-2 text-xs text-black/30">
-          Example: Use Tauri, Keep data local-first
-        </p>
       </div>
 
       <div className="mt-6">
@@ -160,10 +179,11 @@ function NewBreadcrumb({
           id="breadcrumb-next-step"
           value={nextStep}
           onChange={(event) =>
-            setNextStep(event.target.value)
+            setNextStep(
+              event.target.value,
+            )
           }
           rows={3}
-          placeholder="What should you do when you return?"
           className="mt-2 w-full resize-none rounded-lg border border-black/10 px-3 py-2 text-sm leading-6 outline-none transition focus:border-black/30"
         />
       </div>
@@ -185,7 +205,6 @@ function NewBreadcrumb({
             )
           }
           rows={3}
-          placeholder="Anything future-you should remember?"
           className="mt-2 w-full resize-none rounded-lg border border-black/10 px-3 py-2 text-sm leading-6 outline-none transition focus:border-black/30"
         />
       </div>

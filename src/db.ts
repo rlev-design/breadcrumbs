@@ -7,7 +7,12 @@ import type {
   Project,
 } from "./types";
 
-const DATABASE_URL = "sqlite:breadcrumbs.db";
+const DATABASE_URL =
+  "sqlite:breadcrumbs.db";
+
+let databasePromise:
+  | ReturnType<typeof Database.load>
+  | null = null;
 
 type ProjectRow = {
   id: number;
@@ -26,20 +31,31 @@ type BreadcrumbRow = {
   note_to_future_me: string;
 };
 
-async function getDatabase() {
-  return Database.load(DATABASE_URL);
+function getDatabase() {
+  if (!databasePromise) {
+    databasePromise =
+      Database.load(DATABASE_URL);
+  }
+
+  return databasePromise;
 }
 
-export async function getProjects(): Promise<Project[]> {
+export async function getProjects(): Promise<
+  Project[]
+> {
   const db = await getDatabase();
 
-  const projectRows = await db.select<ProjectRow[]>(
-    `
-      SELECT id, name, color
-      FROM projects
-      ORDER BY id ASC
-    `,
-  );
+  const projectRows =
+    await db.select<ProjectRow[]>(
+      `
+        SELECT
+          id,
+          name,
+          color
+        FROM projects
+        ORDER BY id ASC
+      `,
+    );
 
   const breadcrumbRows =
     await db.select<BreadcrumbRow[]>(
@@ -58,35 +74,46 @@ export async function getProjects(): Promise<Project[]> {
       `,
     );
 
-  return projectRows.map((projectRow) => {
-    const breadcrumbs: Breadcrumb[] =
-      breadcrumbRows
-        .filter(
-          (breadcrumbRow) =>
-            breadcrumbRow.project_id ===
-            projectRow.id,
-        )
-        .map((breadcrumbRow) => ({
-          id: breadcrumbRow.id,
-          title: breadcrumbRow.title,
-          date: breadcrumbRow.date,
-          whatChanged:
-            breadcrumbRow.what_changed,
-          decisions: JSON.parse(
-            breadcrumbRow.decisions,
-          ) as string[],
-          nextStep: breadcrumbRow.next_step,
-          noteToFutureMe:
-            breadcrumbRow.note_to_future_me,
-        }));
+  return projectRows.map(
+    (projectRow) => {
+      const breadcrumbs =
+        breadcrumbRows
+          .filter(
+            (breadcrumbRow) =>
+              breadcrumbRow.project_id ===
+              projectRow.id,
+          )
+          .map((breadcrumbRow) => ({
+            id: breadcrumbRow.id,
 
-    return {
-      id: projectRow.id,
-      name: projectRow.name,
-      color: projectRow.color,
-      breadcrumbs,
-    };
-  });
+            title:
+              breadcrumbRow.title,
+
+            date:
+              breadcrumbRow.date,
+
+            whatChanged:
+              breadcrumbRow.what_changed,
+
+            decisions: JSON.parse(
+              breadcrumbRow.decisions,
+            ) as string[],
+
+            nextStep:
+              breadcrumbRow.next_step,
+
+            noteToFutureMe:
+              breadcrumbRow.note_to_future_me,
+          }));
+
+      return {
+        id: projectRow.id,
+        name: projectRow.name,
+        color: projectRow.color,
+        breadcrumbs,
+      };
+    },
+  );
 }
 
 export async function createProject(
@@ -96,13 +123,21 @@ export async function createProject(
 
   const result = await db.execute(
     `
-      INSERT INTO projects (name, color)
+      INSERT INTO projects (
+        name,
+        color
+      )
       VALUES ($1, $2)
     `,
-    [input.name, input.color],
+    [
+      input.name,
+      input.color,
+    ],
   );
 
-  if (result.lastInsertId === undefined) {
+  if (
+    result.lastInsertId === undefined
+  ) {
     throw new Error(
       "SQLite did not return a project ID.",
     );
@@ -133,20 +168,32 @@ export async function createBreadcrumb(
         next_step,
         note_to_future_me
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      VALUES (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7
+      )
     `,
     [
       projectId,
       input.title,
       input.date,
       input.whatChanged,
-      JSON.stringify(input.decisions),
+      JSON.stringify(
+        input.decisions,
+      ),
       input.nextStep,
       input.noteToFutureMe,
     ],
   );
 
-  if (result.lastInsertId === undefined) {
+  if (
+    result.lastInsertId === undefined
+  ) {
     throw new Error(
       "SQLite did not return a breadcrumb ID.",
     );
@@ -159,6 +206,97 @@ export async function createBreadcrumb(
     whatChanged: input.whatChanged,
     decisions: input.decisions,
     nextStep: input.nextStep,
-    noteToFutureMe: input.noteToFutureMe,
+    noteToFutureMe:
+      input.noteToFutureMe,
   };
+}
+
+export async function updateProject(
+  projectId: number,
+  input: NewProjectInput,
+): Promise<void> {
+  const db = await getDatabase();
+
+  await db.execute(
+    `
+      UPDATE projects
+      SET
+        name = $1,
+        color = $2
+      WHERE id = $3
+    `,
+    [
+      input.name,
+      input.color,
+      projectId,
+    ],
+  );
+}
+
+export async function updateBreadcrumb(
+  breadcrumbId: number,
+  input: NewBreadcrumbInput,
+): Promise<void> {
+  const db = await getDatabase();
+
+  await db.execute(
+    `
+      UPDATE breadcrumbs
+      SET
+        title = $1,
+        date = $2,
+        what_changed = $3,
+        decisions = $4,
+        next_step = $5,
+        note_to_future_me = $6
+      WHERE id = $7
+    `,
+    [
+      input.title,
+      input.date,
+      input.whatChanged,
+      JSON.stringify(
+        input.decisions,
+      ),
+      input.nextStep,
+      input.noteToFutureMe,
+      breadcrumbId,
+    ],
+  );
+}
+
+export async function deleteBreadcrumb(
+  breadcrumbId: number,
+): Promise<void> {
+  const db = await getDatabase();
+
+  await db.execute(
+    `
+      DELETE FROM breadcrumbs
+      WHERE id = $1
+    `,
+    [breadcrumbId],
+  );
+}
+
+export async function deleteProject(
+  projectId: number,
+): Promise<void> {
+  const db = await getDatabase();
+
+  await db.execute(
+    `
+      DELETE FROM breadcrumbs
+      WHERE project_id = $1
+    `,
+    [projectId],
+  );
+
+  await db.execute(
+    `
+      DELETE FROM projects
+      WHERE id = $1
+    `,
+    [projectId],
+  );
 }
