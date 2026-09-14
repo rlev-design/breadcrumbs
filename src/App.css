@@ -1,118 +1,203 @@
 @import "tailwindcss";
 
-.logo.vite:hover {
-  filter: drop-shadow(0 0 2em #747bff);
+@theme {
+  --color-app: #f8f6f2;
+  --color-sidebar: #ece9e4;
+  --color-panel: #fbf9f6;
+  --color-line: #e3dfd9;
+  --color-ink: #182130;
+  --color-muted: #69707d;
+  --color-rose: #f4e6e5;
 }
 
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafb);
-}
-:root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 400;
-
-  color: #0f0f0f;
-  background-color: #f6f6f6;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
-}
-
-.container {
-  margin: 0;
-  padding-top: 10vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: 0.75s;
-}
-
-.logo.tauri:hover {
-  filter: drop-shadow(0 0 2em #24c8db);
-}
-
-.row {
-  display: flex;
-  justify-content: center;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-
-a:hover {
-  color: #535bf2;
-}
-
-h1 {
-  text-align: center;
-}
-
-input,
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  color: #0f0f0f;
-  background-color: #ffffff;
-  transition: border-color 0.25s;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-}
-
-button {
-  cursor: pointer;
-}
-
-button:hover {
-  border-color: #396cd8;
-}
-button:active {
-  border-color: #396cd8;
-  background-color: #e8e8e8;
-}
-
-input,
-button {
-  outline: none;
-}
-
-#greet-input {
-  margin-right: 5px;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    color: #f6f6f6;
-    background-color: #2f2f2f;
+    font-family: Inter, Avenir, "Segoe UI", sans-serif;
+    color: var(--color-ink);
+    background: var(--color-app);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    color-scheme: light;
   }
-
-  a:hover {
-    color: #24c8db;
+  body {
+    margin: 0;
   }
-
+  button,
   input,
-  button {
-    color: #ffffff;
-    background-color: #0f0f0f98;
+  textarea {
+    font: inherit;
   }
-  button:active {
-    background-color: #0f0f0f69;
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+  button,
+  a,
+  input,
+  textarea {
+    outline-offset: 4px;
+  }
+  :focus-visible {
+    outline: 2px solid #8a7cab;
+  }
+  textarea {
+    resize: vertical;
+  }
+  ::selection {
+    background: #e5ddf2;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #d4cec6 transparent;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-line px-3 py-2 text-sm font-medium transition-colors hover:bg-sidebar disabled:pointer-events-none;
+  }
+  .btn-primary {
+    @apply border-ink bg-ink text-white hover:bg-slate-700;
+  }
+  .icon-btn {
+    @apply inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-transparent text-muted transition-colors hover:border-line hover:bg-white hover:text-ink;
+  }
+  .field {
+    @apply mt-2 w-full rounded-lg border border-line bg-panel px-3 py-2.5 text-sm text-ink;
+  }
+  .eyebrow {
+    @apply text-[11px] font-medium uppercase tracking-widest text-muted;
+  }
+  .empty {
+    @apply flex min-h-60 flex-col items-center justify-center gap-3 p-8 text-center text-sm text-muted;
+  }
+  .script {
+    font-family: "Bradley Hand", "Segoe Print", cursive;
+    font-weight: 400;
+    letter-spacing: 0.07em;
+  }
+  .app-shell {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    height: 100dvh;
+    overflow: hidden;
+  }
+  .workspace-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    min-height: 0;
+    flex: 1;
+  }
+  .sidebar {
+    @apply flex min-h-0 flex-col border-r border-line bg-sidebar px-5 py-7;
+  }
+  .detail-panel {
+    @apply overflow-y-auto border-l border-line bg-panel p-7;
+  }
+  .cover {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(
+      165deg,
+      #77769b 0%,
+      #b695af 48%,
+      #e4b5b1 73%,
+      #6b7081 100%
+    );
+  }
+  .cover::before {
+    content: "";
+    position: absolute;
+    inset: 63% -5% -20% 15%;
+    background: #323d50;
+    clip-path: polygon(
+      0 70%,
+      0 30%,
+      30% 30%,
+      30% 0,
+      50% 0,
+      50% 25%,
+      72% 25%,
+      72% 48%,
+      100% 48%,
+      100% 100%
+    );
+  }
+  .cover::after {
+    content: "";
+    position: absolute;
+    left: 54%;
+    bottom: 35%;
+    width: 2px;
+    height: 37px;
+    background: #323d50;
+  }
+}
+@media (min-width: 1450px) {
+  .workspace-shell {
+    grid-template-columns: minmax(0, 1fr) 440px;
+  }
+}
+@media (max-width: 1100px) {
+  .app-shell {
+    grid-template-columns: 180px minmax(0, 1fr);
+  }
+  .workspace-shell {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+  .sidebar {
+    padding-inline: 12px;
+  }
+  .detail-panel {
+    padding: 20px;
+  }
+}
+@media (max-width: 850px) {
+  .app-shell {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+    grid-template-columns: 150px minmax(0, 1fr);
+  }
+  .workspace-shell {
+    display: flex;
+    flex-direction: column;
+  }
+  .detail-panel {
+    border-left: 0;
+    border-top: 1px solid var(--color-line);
+    overflow: visible;
+  }
+}
+@media (max-width: 560px) {
+  .app-shell {
+    display: block;
+  }
+  .sidebar {
+    border-right: 0;
+    padding: 16px;
+  }
+  .sidebar-projects {
+    display: flex;
+    overflow-x: auto;
+  }
+  .sidebar-projects button {
+    min-width: 140px;
+  }
+  .sidebar-decoration,
+  .sidebar-nav {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
   }
 }
